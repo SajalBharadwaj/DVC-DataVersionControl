@@ -1,0 +1,91 @@
+# DVC Data Versioning Workflow
+
+1. Create a Git repository on GitHub and clone it to your local machine.
+
+2. Create a `mycode.py` file and add code that generates a CSV file inside a newly created `data/` directory.
+
+3. Before initializing DVC, track the project using Git:
+
+   * Run `git add`, `git commit`, and `git push`.
+
+4. Install and initialize DVC:
+
+   ```bash
+   pip install dvc
+   dvc init
+   ```
+
+   This creates the `.dvc/` directory and the `.dvcignore` file.
+
+5. Create a directory named `S3` to simulate remote storage:
+
+   ```bash
+   mkdir S3
+   ```
+
+6. Configure the DVC remote:
+
+   ```bash
+   dvc remote add -d myremote S3
+   ```
+
+7. Start tracking the `data/` directory with DVC:
+
+   ```bash
+   dvc add data/
+   ```
+
+   Since the `data/` directory is already being tracked by Git, DVC will prompt you to remove it from Git tracking:
+
+   ```bash
+   git rm -r --cached data
+   git commit -m "Stop tracking data with Git"
+   ```
+
+   This allows DVC to manage the dataset instead of Git.
+
+8. Run the following command again:
+
+   ```bash
+   dvc add data/
+   ```
+
+   This creates a `data.dvc` file. Then, add the generated files to Git:
+
+   ```bash
+   git add .gitignore data.dvc
+   git commit -m "Track data with DVC"
+   ```
+
+9. Save the current state of the data to the DVC remote:
+
+   ```bash
+   dvc commit
+   dvc push
+   ```
+
+10. Perform a `git add`, `git commit`, and `git push` to mark this as **Version 1 (V1)** of the dataset.
+
+11. Modify `mycode.py` to append a new row to the CSV file. After running the script, check for data changes:
+
+```bash
+dvc status
+```
+
+12. Save the updated dataset:
+
+```bash
+dvc commit
+dvc push
+```
+
+13. Again, perform `git add`, `git commit`, and `git push` to save this as **Version 2 (V2)** of the dataset.
+
+14. Verify that everything is synchronized:
+
+```bash
+git status
+dvc status
+```
+
+15. Repeat steps 11–13 to create **Version 3 (V3)** and subsequent versions of your dataset.
